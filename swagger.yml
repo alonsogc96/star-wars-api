@@ -1,0 +1,150 @@
+openapi: 3.0.0
+components:
+  schemas:
+    Character:
+      type: object
+      properties:
+        name:
+          type: string
+          description: El nombre del personaje.
+        height:
+          type: integer
+          description: La altura del personaje en centímetros.
+        mass:
+          type: integer
+          description: El peso del personaje en kilogramos.
+        gender:
+          type: string
+          description: El género del personaje.
+        homeworld:
+          type: string
+          description: El planeta natal del personaje.
+  securitySchemes: {}
+
+info:
+  title: Star Wars API
+  description: API para obtener información de personajes de Star Wars desde MyAPI o SWAPI.
+  version: 1.0.0
+
+paths:
+  # Ruta para buscar por id en MyAPI
+  /api/myapi/personajes/{id}:
+    get:
+      operationId: getCharacterByIdMyApi
+      summary: Obtener un personaje desde MyAPI por su id.
+      description: >
+        Obtiene un personaje desde MyAPI por su id.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del personaje a buscar.
+      responses:
+        '200':
+          description: "Personaje encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: "Personaje no encontrado"
+        '500':
+          description: "Error al consultar MyAPI"
+  
+  # Ruta para buscar por nombre en MyAPI
+  /api/myapi/personajes:
+    get:
+      operationId: getCharacterByNameMyApi
+      summary: Obtener un personaje desde MyAPI por su nombre.
+      description: >
+        Obtiene un personaje desde MyAPI por su nombre si se proporciona, de lo contrario, lista todos los personajes.
+      parameters:
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+          description: Nombre del personaje a buscar.
+      responses:
+        '200':
+          description: "Personaje(s) encontrado(s)"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: "Personaje no encontrado"
+        '500':
+          description: "Error al consultar MyAPI"
+
+  # Ruta para buscar por id en SWAPI
+  /api/swapi/personajes/{id}:
+    get:
+      operationId: getCharacterByIdSwapi
+      summary: Obtener un personaje desde SWAPI por su id.
+      description: >
+        Obtiene un personaje desde SWAPI por su id.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: ID del personaje a buscar.
+      responses:
+        '200':
+          description: "Personaje encontrado"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: "Personaje no encontrado"
+        '500':
+          description: "Error al consultar SWAPI"
+  
+  # Ruta para buscar por nombre en SWAPI
+  /api/swapi/personajes:
+    get:
+      operationId: getCharacterByNameSwapi
+      summary: Obtener un personaje desde SWAPI por su nombre.
+      description: >
+        Obtiene un personaje desde SWAPI por su nombre si se proporciona, de lo contrario, lista todos los personajes.
+      parameters:
+        - in: query
+          name: name
+          required: false
+          schema:
+            type: string
+          description: Nombre del personaje a buscar.
+      responses:
+        '200':
+          description: "Personaje(s) encontrado(s)"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Character'
+        '404':
+          description: "Personaje no encontrado"
+        '500':
+          description: "Error al consultar SWAPI"
+  
+  # Crear personaje en MyAPI
+  /api/myapi/personajes/:
+    post:
+      operationId: createCharacterMyApi
+      summary: Crear un personaje
+      description: Crea un nuevo personaje en MyAPI (DynamoDB).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Character'
+      responses:
+        '201':
+          description: "Personaje creado"
+        '500':
+          description: "Error al crear el personaje"

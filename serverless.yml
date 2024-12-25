@@ -1,0 +1,107 @@
+service: star-wars-api
+
+package:
+  patterns:
+    - '!node_modules/**'
+    - '!__tests__/**'
+    - '!README.md'
+    - '!.git/**'
+    - '!*.lock'
+    - '!*.json'
+    - '!*.yml'
+    - '!*.ts'
+    - '!*.gitignore'
+    - '!*.vscode/**'
+    - '!*.idea/**'
+    - '!*.serverless/**'
+
+provider:
+  name: aws
+  runtime: nodejs22.x
+  stage: ${opt:stage,'dev'}
+  region: us-east-1
+  environment:
+    SWAPI_URL: https://swapi.py4e.com/api/people/
+    DYNAMODB_TABLE: StarWarsItems
+
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Scan
+      Resource: arn:aws:dynamodb:us-east-1:${aws:accountId}:table/StarWarsItems
+    - Effect: Allow
+      Action:
+        - dynamodb:Query
+      Resource: arn:aws:dynamodb:us-east-1:${aws:accountId}:table/StarWarsItems/index/NombreIndex
+    
+functions:
+  starWarsApi:
+    handler: src/app.handler # Apunta a la función handler exportada en el archivo handler.ts
+    events:
+      - http:
+          path: api/myapi/personajes
+          method: get
+          cors: true
+      - http:
+          path: api/myapi/personajes/{id}
+          method: get
+          cors: true
+      - http:
+          path: api/swapi/personajes
+          method: get
+          cors: true
+      - http:
+          path: api/swapi/personajes/{id}
+          method: get
+          cors: true
+      - http:
+          path: api/myapi/personajes
+          method: post
+          cors: true
+    timeout: 10
+
+resources:
+  Resources:
+    StarWarsItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: StarWarsItems
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+          - AttributeName: nombre
+            AttributeType: S  # Definimos el campo "nombre" para el índice
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH  # Clave primaria
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
+        GlobalSecondaryIndexes:  # Definimos el índice para búsqueda por nombre
+          - IndexName: NombreIndex
+            KeySchema:
+              - AttributeName: nombre
+                KeyType: HASH  # Usamos "nombre" como la clave del índice
+            Projection:
+              ProjectionType: ALL  # Incluye todos los atributos en la proyección del índice
+            ProvisionedThroughput:
+              ReadCapacityUnits: 5
+              WriteCapacityUnits: 5
+
+plugins:
+  - serverless-openapi-documentation
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3000
+    noPrependStageInUrl: true 
+
+  documentation:
+    title: 'Star Wars API'
+    description: 'API para obtener información de personajes de Star Wars desde MyAPI o SWAPI.'
+    version: '1.0.0'
+    output: swagger.yml
+    

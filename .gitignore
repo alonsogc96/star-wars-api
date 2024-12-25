@@ -1,0 +1,7 @@
+.env
+.idea/
+.vscode/
+.serverless/
+node_modules/
+undefined/
+package-lock.json
