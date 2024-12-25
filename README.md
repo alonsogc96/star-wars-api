@@ -11,7 +11,7 @@ Una API desarrollada en TypeScript que permite obtener información sobre person
 
 1. Clona este repositorio:
    ```bash
-   git clone https://github.com/tu-usuario/star-wars-api.git
+   git clone https://github.com/alonsogc96/star-wars-api.git
    ```
 
 2. Navega al directorio del proyecto:
